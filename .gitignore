@@ -1,0 +1,55 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.venv/
+venv/
+.env
+.mypy_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+.mlruns/
+mlruns/
+
+# Jupyter
+.ipynb_checkpoints/
+notebooks/.ipynb_checkpoints/
+
+# Node
+node_modules/
+dist/
+build/
+.yarn/
+.pnpm-store/
+
+# Logs
+logs/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Data
+/data/
+*.duckdb
+*.db
+
+# Reports
+reports/
+*.pdf
+
+# Secrets
+config.yaml
+secrets.gpg
+
+# Others
+*.cache

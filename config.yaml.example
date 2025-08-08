@@ -1,0 +1,12 @@
+# MarketSage-Pro config
+alpaca_key: "YOUR_ALPACA_KEY"
+alpaca_secret: "YOUR_ALPACA_SECRET"
+max_daily_loss_pct: -2
+kelly_fraction_cap: 0.5
+telegram_bot_token: ""
+telegram_chat_id: ""
+polygon_api_key: ""
+iex_api_key: ""
+openai_api_key: ""
+# Optional: path to GPG home (created automatically if missing)
+gpg_home: ".gnupg"

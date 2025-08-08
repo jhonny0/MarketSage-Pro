@@ -1,0 +1,55 @@
+{
+  "info": {
+    "name": "MarketSage-Pro API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8000/health",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8000",
+          "path": ["health"]
+        }
+      }
+    },
+    {
+      "name": "Signal",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"ensemble_up_prob\": 0.7,\n  \"ensemble_down_prob\": 0.3,\n  \"predicted_move_pct\": 0.3,\n  \"rsi\": 50,\n  \"price_vs_ema21\": 1,\n  \"ivr\": 0.2,\n  \"prob_big_move\": 0.7\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8000/signal",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8000",
+          "path": ["signal"]
+        }
+      }
+    },
+    {
+      "name": "WebSocket (info)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Postman WS runner not included; connect manually:",
+              "// new WebSocket('ws://localhost:8000/ws/stream')"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

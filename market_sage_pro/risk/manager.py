@@ -25,6 +25,12 @@ class RiskManager:
             return False
         if open_symbol_exposure_pct >= self.cfg.per_symbol_cap_pct:
             return False
-        if is_pdt_restricted:
+        # Reject if the account is flagged for pattern day trading or
+        # falls below the regulatory $25k equity requirement.  The
+        # previous implementation only honored the ``is_pdt_restricted``
+        # flag, allowing accounts with low equity to open new positions
+        # if the flag was not set.  This check makes the behaviour
+        # robust by also validating the equity value.
+        if is_pdt_restricted or equity_usd < 25_000:
             return False
         return True

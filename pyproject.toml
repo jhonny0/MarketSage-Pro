@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=65", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "market-sage-pro"
+version = "0.1.0"
+description = "Personal trading copilot for U.S. equities and options"
+authors = [{name = "MarketSage-Pro"}]
+requires-python = ">=3.10"
+
+[tool.ruff]
+line-length = 100
+select = ["E","F","I","UP","B","SIM","C90"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+ignore_missing_imports = true
+warn_unused_configs = true
+
+[tool.pytest.ini_options]
+addopts = "-q --asyncio-mode=auto --maxfail=1 --disable-warnings"
+filterwarnings = ["ignore::DeprecationWarning"]
+
+[tool.coverage.run]
+source = ["market_sage_pro"]
+branch = true
+
+[tool.coverage.report]
+fail_under = 60
+show_missing = true
+
+[tool.black]
+line-length = 100

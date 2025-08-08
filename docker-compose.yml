@@ -17,6 +17,11 @@ services:
       - "8000:8000"
     depends_on:
       - redis
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
 
   scheduler:
     build:
@@ -29,6 +34,11 @@ services:
     depends_on:
       - api
       - redis
+    healthcheck:
+      test: ["CMD", "redis-cli", "-h", "redis", "ping"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
 
   ui:
     build:

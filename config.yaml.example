@@ -1,6 +1,7 @@
 # MarketSage-Pro config
 alpaca_key: "YOUR_ALPACA_KEY"
 alpaca_secret: "YOUR_ALPACA_SECRET"
+alpaca_endpoint: "https://paper-api.alpaca.markets/v2"
 max_daily_loss_pct: -2
 kelly_fraction_cap: 0.5
 telegram_bot_token: ""

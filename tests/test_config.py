@@ -14,6 +14,7 @@ def test_app_config_validation():
         kelly_fraction_cap=0.5,
     )
     assert cfg.max_daily_loss_pct == -2
+    assert cfg.alpaca_endpoint == "https://paper-api.alpaca.markets/v2"
 
     with pytest.raises(Exception):
         AppConfig(

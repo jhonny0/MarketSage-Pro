@@ -15,7 +15,7 @@ No Financial Advice. Trade at Your Own Risk.
 ```bash
 cp config.yaml.example config.yaml
 ```
-Fill `alpaca_key/secret` (paper by default), `max_daily_loss_pct`, `kelly_fraction_cap`, optional `telegram_bot_token/chat_id`.
+Fill `alpaca_key/secret` and optionally `alpaca_endpoint` (default `https://paper-api.alpaca.markets/v2`), `max_daily_loss_pct`, `kelly_fraction_cap`, optional `telegram_bot_token/chat_id`.
 
 3) Run services
 ```bash

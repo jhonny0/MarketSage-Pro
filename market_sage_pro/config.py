@@ -17,6 +17,7 @@ logger = get_logger(__name__)
 class AppConfig(BaseModel):
     alpaca_key: str
     alpaca_secret: str
+    alpaca_endpoint: str = "https://paper-api.alpaca.markets/v2"
     max_daily_loss_pct: float = Field(..., le=0)
     kelly_fraction_cap: float = Field(..., ge=0, le=1)
     telegram_bot_token: str | None = None

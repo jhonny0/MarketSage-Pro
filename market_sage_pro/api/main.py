@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
+from datetime import datetime
 from typing import Annotated
 
 import orjson
@@ -7,6 +9,7 @@ from fastapi import Depends, FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
+from ..backtest.engine import run_backtest
 from ..config import AppConfig, load_config
 from ..signals.generator import SignalConfig, generate_signal
 
@@ -14,7 +17,7 @@ from ..signals.generator import SignalConfig, generate_signal
 class ORJSONResponse:
     media_type = "application/json"
 
-    def __init__(self, content) -> None:
+    def __init__(self, content: object) -> None:
         self.body = orjson.dumps(content)
 
 
@@ -43,13 +46,19 @@ class SignalRequest(BaseModel):
     prob_big_move: float
 
 
+class BacktestRequest(BaseModel):
+    from_date: str
+    to_date: str
+    symbols: list[str]
+
+
 @app.get("/health")
-def health() -> dict:
+def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
 @app.post("/signal")
-def post_signal(req: SignalRequest, cfg: Annotated[AppConfig, Depends(get_settings)]):
+def post_signal(req: SignalRequest, cfg: Annotated[AppConfig, Depends(get_settings)]) -> dict[str, object]:
     sig = generate_signal(
         ensemble_up_prob=req.ensemble_up_prob,
         ensemble_down_prob=req.ensemble_down_prob,
@@ -63,8 +72,19 @@ def post_signal(req: SignalRequest, cfg: Annotated[AppConfig, Depends(get_settin
     return sig.__dict__
 
 
+@app.post("/backtest")
+def post_backtest(req: BacktestRequest) -> Mapping[str, object]:
+    try:
+        start = datetime.fromisoformat(req.from_date)
+        end = datetime.utcnow() if req.to_date.lower() == "today" else datetime.fromisoformat(req.to_date)
+    except ValueError:
+        return {"error": "invalid date"}
+    res = run_backtest(req.symbols, start, end)
+    return res
+
+
 @app.websocket("/ws/stream")
-async def ws_stream(ws: WebSocket):
+async def ws_stream(ws: WebSocket) -> None:
     await ws.accept()
     try:
         await ws.send_json({"msg": "stream started"})

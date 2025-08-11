@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Iterable
 
 import duckdb
 import pandas as pd
@@ -58,3 +57,27 @@ class DuckDBStore:
     @staticmethod
     def _table_name(symbol: str) -> str:
         return f"bars_{symbol.upper()}"
+
+
+def fetch_historical_bars(symbol: str, start: datetime, end: datetime) -> pd.DataFrame:
+    """Fetch historical bars from a public CSV hosted on GitHub."""
+    url = "https://raw.githubusercontent.com/plotly/datasets/master/stockdata.csv"
+    raw = pd.read_csv(url)
+    raw["Date"] = pd.to_datetime(raw["Date"])
+    mask = (raw["Date"] >= pd.to_datetime(start)) & (raw["Date"] <= pd.to_datetime(end))
+    raw = raw.loc[mask]
+    col = symbol.upper()
+    if col not in raw.columns:
+        return pd.DataFrame(columns=["ts", "open", "high", "low", "close", "volume"])
+    close = raw[col].astype(float)
+    df = pd.DataFrame(
+        {
+            "ts": raw["Date"],
+            "open": close,
+            "high": close,
+            "low": close,
+            "close": close,
+            "volume": 0.0,
+        }
+    )
+    return df

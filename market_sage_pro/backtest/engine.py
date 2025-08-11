@@ -2,18 +2,19 @@ from __future__ import annotations
 
 import argparse
 from datetime import datetime
-from typing import List
 
 import numpy as np
 import pandas as pd
 
+from ..data.features import ema, rsi
+from ..data.store import fetch_historical_bars
 from ..signals.generator import Signal, SignalConfig, generate_signal
 
 
-def backtest(df: pd.DataFrame, cfg: SignalConfig) -> dict:
+def backtest(df: pd.DataFrame, cfg: SignalConfig) -> dict[str, float | int]:
     equity = 1.0
     peak = 1.0
-    returns: List[float] = []
+    returns: list[float] = []
     wins = 0
     trades = 0
     for _, row in df.iterrows():
@@ -58,6 +59,31 @@ def backtest(df: pd.DataFrame, cfg: SignalConfig) -> dict:
     }
 
 
+def _prepare_df(df: pd.DataFrame) -> pd.DataFrame:
+    df = df.copy()
+    df["rsi"] = rsi(df["close"]).fillna(50)
+    df["ema21"] = ema(df["close"], span=21)
+    df["px_vs_ema21"] = ((df["close"] - df["ema21"]) / df["ema21"]).fillna(0)
+    df["actual_move"] = df["close"].pct_change() * 100
+    df["pred_move"] = df["actual_move"].shift(1).fillna(0)
+    df["p_up"] = np.where(df["pred_move"] >= 0, 0.7, 0.3)
+    df["p_down"] = 1 - df["p_up"]
+    df["ivr"] = 0.5
+    df["p_big"] = 0.7
+    return df.dropna(subset=["actual_move"])
+
+
+def run_backtest(symbols: list[str], start: datetime, end: datetime) -> dict[str, dict[str, float | int]]:
+    results = {}
+    for sym in symbols:
+        bars = fetch_historical_bars(sym, start, end)
+        if bars.empty:
+            continue
+        df = _prepare_df(bars)
+        results[sym] = backtest(df, SignalConfig(kelly_fraction_cap=0.5))
+    return results
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--from", dest="from_date", required=True)
@@ -65,25 +91,15 @@ def main() -> None:
     parser.add_argument("--symbols", type=str, required=True)
     args = parser.parse_args()
 
-    # Placeholder data
-    dates = pd.date_range(start="2023-01-01", end=datetime.utcnow(), freq="B")
-    df = pd.DataFrame(
-        {
-            "p_up": 0.55,
-            "p_down": 0.45,
-            "pred_move": 0.3,
-            "rsi": 50,
-            "px_vs_ema21": 1,
-            "ivr": 0.2,
-            "p_big": 0.7,
-            "actual_move": np.random.normal(0.05, 0.5, size=len(dates)),
-        },
-        index=dates,
-    )
+    start = datetime.fromisoformat(args.from_date)
+    end = datetime.utcnow() if args.to_date.lower() == "today" else datetime.fromisoformat(args.to_date)
+    symbols = [s.strip() for s in args.symbols.split(",")]
 
-    res = backtest(df, SignalConfig(kelly_fraction_cap=0.5))
-    for k, v in res.items():
-        print(f"{k}: {v}")
+    res = run_backtest(symbols, start, end)
+    for sym, metrics in res.items():
+        print(sym)
+        for k, v in metrics.items():
+            print(f"{k}: {v}")
 
 
 if __name__ == "__main__":

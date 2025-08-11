@@ -3,14 +3,14 @@ from fastapi.testclient import TestClient
 from market_sage_pro.api.main import app
 
 
-def test_health():
+def test_health() -> None:
     client = TestClient(app)
     r = client.get('/health')
     assert r.status_code == 200
     assert r.json()['status'] == 'ok'
 
 
-def test_signal_endpoint():
+def test_signal_endpoint() -> None:
     client = TestClient(app)
     r = client.post('/signal', json={
         'ensemble_up_prob': 0.7,
